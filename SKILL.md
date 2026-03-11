@@ -16,6 +16,13 @@ Trigger this skill when any of the following intents appear:
 2. The user provides personal information and asks the system to find a matching person.
 3. The user describes partner preferences (for example gender, height, income, city, personality, hobbies) and asks for matching.
 
+## Language Alignment Rule
+
+When constructing `dating-cli` command arguments, use the same language as the user for all free-text fields and labels (for example `--task-name`, `--character-text`, `--hobby-text`, `--ability-text`, `--preferred-*` text fields, and `--comment`).
+
+- Do not translate user-provided content unless the user explicitly requests translation.
+- Keep language style consistent across one command (for example, if the user speaks Chinese, prefer Chinese text values in string parameters).
+
 ## Standard Execution Flow (AI Agent)
 
 1. Check CLI availability.
@@ -140,7 +147,6 @@ dating-cli review 67890 --rating 5 --comment "Good communication and aligned val
 ```bash
 dating-cli task stop 12345
 dating-cli logout
-dating-cli config clear-token
 ```
 
 ## Reference
