@@ -318,13 +318,14 @@ Output fields:
 
 ## 8. Match Check Command
 
-### 8.1 `dating-cli check <taskId> `
+### 8.1 `dating-cli check <taskId> [--page <value>]`
 
 Input fields:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | taskId | Integer | Yes | Task ID |
+| --page | Integer | No | Page number, default `1`; each page returns `10` candidates |
 
 Output fields (top-level):
 
@@ -343,7 +344,11 @@ Output fields (`response.data`):
 | serverTime | Long | Server timestamp in milliseconds |
 | taskId | Long | Current task ID |
 | resultVersion | Long | Current result version |
-| candidates | Array<Object> | Candidate list (up to 20) |
+| page | Integer | Current page number |
+| pageSize | Integer | Page size, fixed `10` |
+| total | Integer | Total candidate count in this check result |
+| totalPages | Integer | Total pages in this check result |
+| candidates | Array<Object> | Candidate list for current page (up to 10) |
 
 `candidates[]` (`MatchCandidateView`) fields:
 
@@ -454,7 +459,7 @@ dating-cli profile update --gender male --city Shanghai --character-text "<text>
 dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}'
 
 # 4) Check match results (repeat when NO_RESULT_RETRY_NOW)
-dating-cli check <taskId> 
+dating-cli check <taskId> --page 1
 
 # 5) Reveal contact after match
 dating-cli reveal-contact <matchId>

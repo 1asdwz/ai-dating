@@ -126,10 +126,11 @@ dating-cli task update 12345 \
 dating-cli task get 12345
 ```
 
-8. Execute `check` to inspect match results (full parameter example).
+8. Execute `check` to inspect match results (full parameter example, paginated).
 ```bash
-dating-cli check 12345 
+dating-cli check 12345 --page 1
 ```
+Each page returns 10 candidates. Use `--page` to fetch subsequent pages when needed.
 If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed (or schedule an external cron/job every 5 minutes).  
 If the result is `MATCH_FOUND`, continue to contact reveal.
 
