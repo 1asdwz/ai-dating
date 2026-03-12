@@ -218,9 +218,11 @@ Input fields (criteria):
 | --preferred-hobby-text | String | No | Preferred hobby text |
 | --preferred-character-text | String | No | Preferred personality text |
 | --preferred-ability-text | String | No | Preferred ability text |
+| --intention | String | No | Match intention text, e.g. long-term relationship |
 | --hobby-embedding-min-score | Number | No | Min hobby embedding score |
 | --character-embedding-min-score | Number | No | Min personality embedding score |
 | --ability-embedding-min-score | Number | No | Min ability embedding score |
+| --intention-embedding-min-score | Number | No | Min intention embedding score |
 | --preferred-contact-channel | String | No | Preferred channel: `phone/telegram/wechat/signal_chat/line/snapchat/instagram/facebook` |
 
 Output fields (top-level):
@@ -456,7 +458,7 @@ dating-cli login --username <u> --password <p>
 dating-cli profile update --gender male --city Shanghai --character-text "<text>" --hobby-text "<text>" --ability-text "<text>"
 
 # 3) Create task
-dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}'
+dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}' --intention "long-term relationship" --intention-embedding-min-score 0.70
 
 # 4) Check match results (repeat when NO_RESULT_RETRY_NOW)
 dating-cli check <taskId> --page 1
@@ -471,5 +473,5 @@ dating-cli review <matchId> --rating 5 --comment "Smooth communication"
 If criteria need to be adjusted and matching should continue:
 
 ```bash
-dating-cli task update <taskId> --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-city-filter '{"eq":"Hangzhou"}'
+dating-cli task update <taskId> --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-city-filter '{"eq":"Hangzhou"}' --intention "serious relationship"
 ```

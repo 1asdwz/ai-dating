@@ -18,7 +18,7 @@ Trigger this skill when any of the following intents appear:
 
 ## Language Alignment Rule
 
-When constructing `dating-cli` command arguments, use the same language as the user for all free-text fields and labels (for example `--task-name`, `--character-text`, `--hobby-text`, `--ability-text`, `--preferred-*` text fields, and `--comment`).
+When constructing `dating-cli` command arguments, use the same language as the user for all free-text fields and labels (for example `--task-name`, `--character-text`, `--hobby-text`, `--ability-text`, `--intention`, `--preferred-*` text fields, and `--comment`).
 
 - Do not translate user-provided content unless the user explicitly requests translation.
 - Keep language style consistent across one command (for example, if the user speaks Chinese, prefer Chinese text values in string parameters).
@@ -73,12 +73,13 @@ dating-cli profile update \
   --phone "13800000000" \
   --telegram "amy_tg" \
   --wechat "amy_wechat" \
+  --whatsapp "amy_wa" \
   --signal-chat "amy_signal" \
   --line "amy_line" \
   --snapchat "amy_snap" \
   --instagram "amy_ins" \
   --facebook "amy_fb" \
-  --other-contact "xiaohongshu=amy_xhs" \
+  --other-contact "x=amy_xhs" \
   --other-contact "discord=amy#1234"
 ```
 
@@ -98,9 +99,11 @@ dating-cli task create \
   --preferred-hobby-text "reading, travel" \
   --preferred-character-text "kind, positive" \
   --preferred-ability-text "strong communication" \
+  --intention "long-term relationship" \
   --hobby-embedding-min-score 0.72 \
   --character-embedding-min-score 0.70 \
   --ability-embedding-min-score 0.68 \
+  --intention-embedding-min-score 0.70 \
   --preferred-contact-channel telegram
 ```
 
@@ -115,9 +118,11 @@ dating-cli task update 12345 \
   --preferred-hobby-text "reading, travel, sports" \
   --preferred-character-text "independent, optimistic" \
   --preferred-ability-text "communication and collaboration" \
+  --intention "serious relationship with marriage plan" \
   --hobby-embedding-min-score 0.70 \
   --character-embedding-min-score 0.70 \
   --ability-embedding-min-score 0.65 \
+  --intention-embedding-min-score 0.68 \
   --preferred-contact-channel wechat
 ```
 
