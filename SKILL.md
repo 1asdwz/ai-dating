@@ -50,7 +50,9 @@ dating-cli register --username "amy_2026"
 dating-cli login --username "amy_2026" --password "123456"
 ```
 
-4. Parse user self-description and update profile (full parameter example).
+> **Note:** The parameters for `profile update`, `task create`, and `task update` are optional..
+
+4. Parse user self-description and update profile (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
 ```bash
 dating-cli profile update \
   --gender male \
@@ -83,7 +85,7 @@ dating-cli profile update \
   --other-contact "discord=amy#1234"
 ```
 
-5. Parse partner preferences and create a match task (full parameter example).
+5. Parse partner preferences and create a match task (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
 ```bash
 dating-cli task create \
   --task-name "Find partner in Hangzhou" \
