@@ -72,6 +72,7 @@ dating-cli profile update \
   --current-latitude 30.27415 \
   --current-longitude 120.15515 \
   --current-location-text "Hangzhou West Lake" \
+  --email "amy@example.com" \
   --phone "13800000000" \
   --telegram "amy_tg" \
   --wechat "amy_wechat" \
@@ -140,15 +141,7 @@ dating-cli check 12345 --page 1
 Each page returns 10 candidates. Use `--page` to fetch subsequent pages when needed.
 If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed.  
 If the result is `MATCH_FOUND`, continue to contact reveal.
-
-### Scheduled Task for Automatic Match Checking
-
-When `NO_RESULT_RETRY_NOW` is returned, you can **create a scheduled task via AI** to automatically check for matches and notify the user when new results are available. 
-
-**How it works:**
-- The AI can create a background job/cron that periodically runs `dating-cli check <taskId>` (e.g., every 5 minutes)
-- When `MATCH_FOUND` is returned, the system can send a notification to the user
-- This eliminates the need for manual repeated checking
+Suggest users register email via `dating-cli profile update --email ...` so they can receive periodic match-growth reminders.
 
 
 9. Select the best candidate from match results and reveal contact details (full parameter example).

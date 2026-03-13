@@ -171,6 +171,7 @@ Input fields (profile and contacts):
 | --current-latitude | Number | No | Current latitude |
 | --current-longitude | Number | No | Current longitude |
 | --current-location-text | String | No | Current location text |
+| --email | String | No | Email used for match reminder notifications |
 | --phone | String | No | Phone number |
 | --telegram | String | No | Telegram |
 | --wechat | String | No | WeChat |
@@ -367,6 +368,7 @@ Output fields (`response.data`):
 | hobbyText | String | Hobby text |
 | character | String | Personality text |
 | abilityText | String | Ability text |
+| photoUrls | Array<String> | Profile image URLs uploaded by the candidate |
 | currentLocationText | String | Location text |
 | currentLatitude | BigDecimal | Latitude |
 | currentLongitude | BigDecimal | Longitude |
@@ -383,6 +385,11 @@ Output fields (`response.data`):
 | confirmedViolationCount | Integer | Confirmed violation count |
 | dailyExposureCount | Integer | Daily exposure count |
 | profileUpdatedAt | DateTime | Profile last updated time |
+
+Reminder rule:
+
+- The backend checks active tasks every 10 minutes.
+- If current candidate count is at least 2x compared with the previous check baseline, an email reminder is sent to the task owner (when email is configured).
 
 ## 9. Result Commands
 
