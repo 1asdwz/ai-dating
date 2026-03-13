@@ -171,6 +171,7 @@ Input fields (profile and contacts):
 | --current-latitude | Number | No | Current latitude |
 | --current-longitude | Number | No | Current longitude |
 | --current-location-text | String | No | Current location text |
+| --photo-url | String | No | Profile image URL, repeatable; maps to `photoUrls` |
 | --email | String | No | Email used for match reminder notifications |
 | --phone | String | No | Phone number |
 | --telegram | String | No | Telegram |
@@ -181,6 +182,11 @@ Input fields (profile and contacts):
 | --instagram | String | No | Instagram |
 | --facebook | String | No | Facebook |
 | --other-contact | String | No | `key=value`, repeatable; becomes `otherContacts` map |
+
+Image upload flow:
+
+- Upload image files first via `POST /minio/upload`.
+- Use repeatable `--photo-url` to submit returned URLs to `/member-profile`.
 
 Output fields:
 
@@ -372,16 +378,9 @@ Output fields (`response.data`):
 | currentLocationText | String | Location text |
 | currentLatitude | BigDecimal | Latitude |
 | currentLongitude | BigDecimal | Longitude |
-| rankScore | Double | Rank score |
-| compatibilityScore | Double | Compatibility score |
-| hobbyEmbeddingScore | Double | Hobby embedding score |
-| characterEmbeddingScore | Double | Personality embedding score |
-| abilityEmbeddingScore | Double | Ability embedding score |
-| vectorSimilarityScore | Double | Combined vector score |
+| rankScore | Double | Total score returned by `/check` |
 | exactMatchCount | Integer | Exact matched condition count |
 | exactConditionCount | Integer | Total exact condition count |
-| exactMatchScore | Double | Exact-match score |
-| avgRating | Double | Historical average rating |
 | confirmedViolationCount | Integer | Confirmed violation count |
 | dailyExposureCount | Integer | Daily exposure count |
 | profileUpdatedAt | DateTime | Profile last updated time |
@@ -462,7 +461,7 @@ dating-cli register --username <preferredName>
 dating-cli login --username <u> --password <p>
 
 # 2) Update profile
-dating-cli profile update --gender male --city Shanghai --character-text "<text>" --hobby-text "<text>" --ability-text "<text>"
+dating-cli profile update --gender male --city Shanghai --character-text "<text>" --hobby-text "<text>" --ability-text "<text>" --photo-url "<url1>" --photo-url "<url2>"
 
 # 3) Create task
 dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}' --intention "long-term relationship" --intention-embedding-min-score 0.70

@@ -51,6 +51,7 @@ dating-cli login --username "amy_2026" --password "123456"
 ```
 
 > **Note:** The parameters for `profile update`, `task create`, and `task update` are optional..
+> For profile images, upload image files first using `POST /minio/upload`, then pass returned URLs with repeatable `--photo-url` (mapped to `/member-profile` field `photoUrls`).
 
 4. Parse user self-description and update profile (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
 ```bash
@@ -72,6 +73,8 @@ dating-cli profile update \
   --current-latitude 30.27415 \
   --current-longitude 120.15515 \
   --current-location-text "Hangzhou West Lake" \
+  --photo-url "https://cdn.example.com/photos/amy-1.jpg" \
+  --photo-url "https://cdn.example.com/photos/amy-2.jpg" \
   --email "amy@example.com" \
   --phone "13800000000" \
   --telegram "amy_tg" \

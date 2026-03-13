@@ -149,7 +149,7 @@ Failure:
 Important `check` fields:
 
 - `response.data.watchStatus`: `MATCH_FOUND` or `NO_RESULT_RETRY_NOW`
-- `response.data.candidates[]`: candidate list (including `matchId`, `memberId`, `rankScore`, `compatibilityScore`, and more)
+- `response.data.candidates[]`: candidate list (score-related field keeps `rankScore` only)
 
 ## Recommended Practices
 
