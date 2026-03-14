@@ -6,6 +6,7 @@ It uses `dating-cli` for account handling, profile updates, match-task managemen
 ## Capability Overview
 
 - Register or log in a dating account (`register` / `login`)
+- Upload profile images to MinIO (`upload`)
 - Update profile and contact fields (`profile update`)
 - Create, update, and stop match tasks (`task create/update/stop`)
 - Poll and inspect match candidates (`check`)
@@ -67,6 +68,12 @@ dating-cli login --username "amy_2026" --password "123456"
 ```
 
 ### 2) Update Profile
+
+```bash
+dating-cli upload "./photos/amy-1.jpg" "./photos/amy-2.jpg"
+```
+
+This command uploads files via `/minio/upload` and directly updates `/member-profile` `photoUrls` with the URL array.
 
 ```bash
 dating-cli profile update \
