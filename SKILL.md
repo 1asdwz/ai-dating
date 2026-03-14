@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.2"
+  version: "1.1.4"
 ---
 
 # Ai Dating
