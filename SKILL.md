@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Ai Dating
@@ -147,6 +147,7 @@ dating-cli task get 12345
 dating-cli check 12345 --page 1
 ```
 Each page returns 10 candidates. Use `--page` to fetch subsequent pages when needed.
+`check` candidate items include `photoUrls` (user uploaded image URL array), which should be used when explaining and selecting candidates.
 If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed.  
 If the result is `MATCH_FOUND`, continue to contact reveal.
 Suggest users register email via `dating-cli profile update --email ...` so they can receive periodic match-growth reminders.

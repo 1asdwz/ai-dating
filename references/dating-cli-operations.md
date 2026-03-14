@@ -406,6 +406,8 @@ Output fields (`response.data`):
 | dailyExposureCount | Integer | Daily exposure count |
 | profileUpdatedAt | DateTime | Profile last updated time |
 
+`dating-cli check` guarantees `candidates[].photoUrls` as an array (empty array when no photos).
+
 Reminder rule:
 
 - The backend checks active tasks every 10 minutes.
