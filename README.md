@@ -110,6 +110,8 @@ dating-cli task create \
   --preferred-contact-channel telegram
 ```
 
+For `task create`, omitted embedding min-score fields default to `0.1`.
+
 ### 4) Check Result and Reveal Contact
 
 ```bash

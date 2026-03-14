@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.4"
+  version: "1.1.5"
 ---
 
 # Ai Dating
@@ -117,6 +117,7 @@ dating-cli task create \
   --intention-embedding-min-score 0.70 \
   --preferred-contact-channel telegram
 ```
+If any `--*-embedding-min-score` is omitted in `task create`, backend defaults it to `0.1`.
 
 6. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
 ```bash
