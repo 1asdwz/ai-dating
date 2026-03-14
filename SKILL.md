@@ -1,6 +1,10 @@
 ---
 name: ai-dating
 description: "This skill enables dating and matchmaking workflows. Use it when a user asks to make friends, find a partner, run matchmaking, or provide dating preferences/profile updates. The skill should execute `dating-cli` commands to complete profile setup, task creation/update, match checking, contact reveal, and review."
+license: MIT
+metadata:
+  author: 1asdwz
+  version: "1.1.0"
 ---
 
 # Ai Dating
