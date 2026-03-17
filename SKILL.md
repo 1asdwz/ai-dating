@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.7"
+  version: "1.1.8"
 ---
 
 # Ai Dating
@@ -27,9 +27,24 @@ When constructing `dating-cli` command arguments, use the same language as the u
 - Do not translate user-provided content unless the user explicitly requests translation.
 - Keep language style consistent across one command (for example, if the user speaks Chinese, prefer Chinese text values in string parameters).
 
+## Update Commands
+
+When users ask to update this skill or the CLI, run:
+
+```bash
+npx skills add 1asdwz/ai-dating
+npm install -g dating-cli@latest
+```
+
 ## Standard Execution Flow (AI Agent)
 
-1. Check CLI availability.
+1. Check skill and CLI availability.
+
+Update skill and CLI when needed:
+
+
+
+Then verify CLI:
 ```bash
 command -v dating-cli
 dating-cli --help
@@ -37,7 +52,7 @@ dating-cli --help
 
 If missing, install:
 ```bash
-npm install -g dating-cli
+npm install -g dating-cli@latest
 # or
 bun install -g dating-cli
 ```

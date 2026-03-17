@@ -39,9 +39,16 @@ dating-cli config path
 Install if missing (pick one):
 
 ```bash
-npm install -g dating-cli
+npm install -g dating-cli@latest
 # or
 bun install -g dating-cli
+```
+
+Update skill and CLI:
+
+```bash
+npx skills update
+npm install -g dating-cli@latest
 ```
 
 ## Standard Execution Flow
