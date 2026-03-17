@@ -247,10 +247,10 @@ Input fields (criteria):
 | --preferred-character-text | String | No | Preferred personality text |
 | --preferred-ability-text | String | No | Preferred ability text |
 | --intention | String | No | Match intention text, e.g. long-term relationship |
-| --hobby-embedding-min-score | Number | No | Min hobby embedding score (default `0.1` on task create) |
-| --character-embedding-min-score | Number | No | Min personality embedding score (default `0.1` on task create) |
-| --ability-embedding-min-score | Number | No | Min ability embedding score (default `0.1` on task create) |
-| --intention-embedding-min-score | Number | No | Min intention embedding score (default `0.1` on task create) |
+| --hobby-embedding-min-score | Number | No | Min semantic similarity score for hobby matching (usually leave unset; task create default `0.1` when omitted) |
+| --character-embedding-min-score | Number | No | Min semantic similarity score for personality matching (usually leave unset; task create default `0.1` when omitted) |
+| --ability-embedding-min-score | Number | No | Min semantic similarity score for ability matching (usually leave unset; task create default `0.1` when omitted) |
+| --intention-embedding-min-score | Number | No | Min semantic similarity score for intention matching (usually leave unset; task create default `0.1` when omitted) |
 | --preferred-contact-channel | String | No | Preferred channel: `phone/telegram/wechat/signal_chat/line/snapchat/instagram/facebook` |
 
 Output fields (top-level):
@@ -490,7 +490,7 @@ dating-cli upload "./photos/me-1.jpg" "./photos/me-2.jpg"
 dating-cli profile update --gender male --city Shanghai --character-text "<text>" --hobby-text "<text>" --ability-text "<text>"
 
 # 4) Create task
-dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}' --intention "long-term relationship" --intention-embedding-min-score 0.70
+dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}' --intention "long-term relationship"
 
 # 5) Check match results (repeat when NO_RESULT_RETRY_NOW)
 dating-cli check <taskId> --page 1

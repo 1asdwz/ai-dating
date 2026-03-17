@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.5"
+  version: "1.1.6"
 ---
 
 # Ai Dating
@@ -111,13 +111,10 @@ dating-cli task create \
   --preferred-character-text "kind, positive" \
   --preferred-ability-text "strong communication" \
   --intention "long-term relationship" \
-  --hobby-embedding-min-score 0.72 \
-  --character-embedding-min-score 0.70 \
-  --ability-embedding-min-score 0.68 \
-  --intention-embedding-min-score 0.70 \
   --preferred-contact-channel telegram
 ```
-If any `--*-embedding-min-score` is omitted in `task create`, backend defaults it to `0.1`.
+`--*-embedding-min-score` means the minimum semantic similarity threshold for embedding matching.  
+Default recommendation is to leave it unset; when omitted in `task create`, backend defaults to `0.1`.
 
 6. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
 ```bash
@@ -131,10 +128,6 @@ dating-cli task update 12345 \
   --preferred-character-text "independent, optimistic" \
   --preferred-ability-text "communication and collaboration" \
   --intention "serious relationship with marriage plan" \
-  --hobby-embedding-min-score 0.70 \
-  --character-embedding-min-score 0.70 \
-  --ability-embedding-min-score 0.65 \
-  --intention-embedding-min-score 0.68 \
   --preferred-contact-channel wechat
 ```
 
