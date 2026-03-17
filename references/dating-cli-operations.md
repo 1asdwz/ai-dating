@@ -247,10 +247,10 @@ Input fields (criteria):
 | --preferred-character-text | String | No | Preferred personality text |
 | --preferred-ability-text | String | No | Preferred ability text |
 | --intention | String | No | Match intention text, e.g. long-term relationship |
-| --hobby-embedding-min-score | Number | No | Min semantic similarity score for hobby matching (usually leave unset; task create default `0.1` when omitted) |
-| --character-embedding-min-score | Number | No | Min semantic similarity score for personality matching (usually leave unset; task create default `0.1` when omitted) |
-| --ability-embedding-min-score | Number | No | Min semantic similarity score for ability matching (usually leave unset; task create default `0.1` when omitted) |
-| --intention-embedding-min-score | Number | No | Min semantic similarity score for intention matching (usually leave unset; task create default `0.1` when omitted) |
+| --hobby-embedding-min-score | Number | No | Min semantic similarity score for hobby matching (usually leave unset; task create default `0.1` when omitted, recommended to use `0.1`) |
+| --character-embedding-min-score | Number | No | Min semantic similarity score for personality matching (usually leave unset; task create default `0.1` when omitted, recommended to use `0.1`) |
+| --ability-embedding-min-score | Number | No | Min semantic similarity score for ability matching (usually leave unset; task create default `0.1` when omitted, recommended to use `0.1`) |
+| --intention-embedding-min-score | Number | No | Min semantic similarity score for intention matching (usually leave unset; task create default `0.1` when omitted, recommended to use `0.1`) |
 | --preferred-contact-channel | String | No | Preferred channel: `phone/telegram/wechat/signal_chat/line/snapchat/instagram/facebook` |
 
 Output fields (top-level):
