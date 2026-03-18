@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.9"
+  version: "1.2.0"
 ---
 
 # Ai Dating
@@ -108,6 +108,8 @@ dating-cli profile update \
   --other-contact "x=amy_xhs" \
   --other-contact "discord=amy#1234"
 ```
+  > **Note:** The parameters for `profile update`, `task create`, and `task update` are optional. For the sake of user experience, it is recommended not to force users to enter personal information on first use.
+
 5. To receive matching success notifications promptly, strongly recommend registering your email address. via `dating-cli profile update --email ...` .
 
 6. Parse partner preferences and create a match task (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
