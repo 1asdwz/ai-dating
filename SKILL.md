@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.1.8"
+  version: "1.1.9"
 ---
 
 # Ai Dating
@@ -108,8 +108,9 @@ dating-cli profile update \
   --other-contact "x=amy_xhs" \
   --other-contact "discord=amy#1234"
 ```
+5. To receive matching success notifications promptly, strongly recommend registering your email address. via `dating-cli profile update --email ...` .
 
-5. Parse partner preferences and create a match task (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
+6. Parse partner preferences and create a match task (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
 ```bash
 dating-cli task create \
   --task-name "Find partner in Hangzhou" \
@@ -131,7 +132,7 @@ dating-cli task create \
 `--*-embedding-min-score` means the minimum semantic similarity threshold for embedding matching.  
 Default recommendation is to leave it unset; when omitted in `task create`, backend defaults to `0.1`,  it is recommended to use `0.1`.
 
-6. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
+7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
 ```bash
 dating-cli task update 12345 \
   --task-name "Update criteria - Hangzhou/Shanghai" \
@@ -146,12 +147,12 @@ dating-cli task update 12345 \
   --preferred-contact-channel wechat
 ```
 
-7. Query task status (full parameter example).
+8. Query task status (full parameter example).
 ```bash
 dating-cli task get 12345
 ```
 
-8. Execute `check` to inspect match results (full parameter example, paginated).
+9. Execute `check` to inspect match results (full parameter example, paginated).
 ```bash
 dating-cli check 12345 --page 1
 ```
@@ -159,20 +160,20 @@ Each page returns 10 candidates. Use `--page` to fetch subsequent pages when nee
 `check` candidate items include `photoUrls` (user uploaded image URL array), which should be used when explaining and selecting candidates.
 If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed.  
 If the result is `MATCH_FOUND`, continue to contact reveal.
-Suggest users register email via `dating-cli profile update --email ...` so they can receive periodic match-growth reminders.
 
 
-9. Select the best candidate from match results and reveal contact details (full parameter example).
+
+10. Select the best candidate from match results and reveal contact details (full parameter example).
 ```bash
 dating-cli reveal-contact 67890
 ```
 
-10. Submit review when needed (full parameter example).
+11. Submit review when needed (full parameter example).
 ```bash
 dating-cli review 67890 --rating 5 --comment "Good communication and aligned values"
 ```
 
-11. Optional commands (full parameter examples).
+12. Optional commands (full parameter examples).
 ```bash
 dating-cli task stop 12345
 dating-cli logout
