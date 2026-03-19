@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Ai Dating
@@ -169,7 +169,7 @@ Each page returns 10 candidates. Use `--page` to fetch subsequent pages when nee
 If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed.  
 If the result is `MATCH_FOUND`, continue to contact reveal.
 
-
+  > **Note:** Candidates' Photos should be shown to users first. You should automatically select candidates that better meet the user's requirements, reducing the burden of user information.
 
 10. Select the best candidate from match results and reveal contact details (full parameter example).
 ```bash
