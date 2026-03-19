@@ -224,6 +224,8 @@ Output fields:
 
 Mapped API: `POST /match-tasks`
 
+Controller behavior: returns `CommonResult<MatchTaskResponse>`.
+
 Input fields (base):
 
 | Field | Type | Required | Description |
@@ -263,27 +265,7 @@ Output fields (top-level):
 | taskState.taskName | String | Latest task name |
 | taskState.status | String | Latest task status (`active/stopped`) |
 | taskState.matchStatus | String | Latest match status |
-| taskState.resultVersion | Integer | Latest task result version |
-| taskState.operation | String | Operation name (for example `task.create`) |
-| taskState.updatedAt | String | Snapshot write time |
 
-Output fields (`response.data`):
-
-| Field | Type | Description |
-|---|---|---|
-| taskId | Long | Task ID |
-| taskName | String | Task name |
-| status | String | Lifecycle status (`active/stopped`) |
-| matchStatus | String | Match status (`UNMATCHED/MATCHED/CONTACT_REVEALED/STOPPED`) |
-| resultVersion | Long | Result version |
-| finalContactMemberId | Long | Final contacted memberId (may be null) |
-| lastWatchAt | DateTime | Latest check/watch time |
-| lastMatchAt | DateTime | Latest match time |
-| matchedAt | DateTime | First matched time |
-| contactRevealedAt | DateTime | Contact reveal time |
-| createdAt | DateTime | Creation time |
-| updatedAt | DateTime | Update time |
-| criteria | Object | Task criteria snapshot |
 
 ### 7.2 `dating-cli task get <taskId>`
 
@@ -308,6 +290,8 @@ Output fields:
 
 Mapped API: `POST /match-tasks/{taskId}/update`
 
+Controller behavior: returns success-only `CommonResult` (`response.data` is usually `null`).
+
 Input fields:
 
 | Field | Type | Required | Description |
@@ -316,18 +300,13 @@ Input fields:
 | --task-name | String | Yes | Updated task name |
 | criteria options | - | No | Same as section 7.1 criteria |
 
-Output fields:
 
-| Field | Type | Description |
-|---|---|---|
-| ok | Boolean | Command success |
-| savedTo | String | Local config save path |
-| taskState.* | Object | Same meaning as section 7.1 |
-| response.data.* | Object | Same meaning as section 7.1 `response.data`; typically `status=active`, `matchStatus=UNMATCHED` |
 
 ### 7.4 `dating-cli task stop <taskId>`
 
 Mapped API: `POST /match-tasks/{taskId}/stop`
+
+Controller behavior: returns success-only `CommonResult` (`response.data` is usually `null`).
 
 Input fields:
 
@@ -335,16 +314,7 @@ Input fields:
 |---|---|---|---|
 | taskId | Integer | Yes | Task ID |
 
-Output fields:
 
-| Field | Type | Description |
-|---|---|---|
-| ok | Boolean | Command success |
-| savedTo | String | Local config save path |
-| taskState.* | Object | Same meaning as section 7.1 |
-| response.data.status | String | Should be `stopped` |
-| response.data.matchStatus | String | Should be `STOPPED` |
-| response.data.* | Object | Other task fields, same model as section 7.1 |
 
 ## 8. Match Check Command
 
@@ -364,16 +334,18 @@ Output fields (top-level):
 | ok | Boolean | Command success |
 | response.code | Integer | Business status code |
 | response.message | String | Business message |
+| response.watchStatus | String | Top-level `CommonResult.watchStatus` from controller |
+| response.serverTime | Long | Top-level `CommonResult.serverTime`; currently may be `null` |
 | response.data | Object | Check result object (see below) |
 
 Output fields (`response.data`):
 
 | Field | Type | Description |
 |---|---|---|
-| watchStatus | String | `MATCH_FOUND` or `NO_RESULT_RETRY_NOW` |
-| serverTime | Long | Server timestamp in milliseconds |
+| watchStatus | String | `MATCH_FOUND` or `NO_RESULT_RETRY_NOW`; CLI normalizes it to match top-level `response.watchStatus` |
+| serverTime | Long | Server timestamp in milliseconds; currently may be `null`, and CLI normalizes it to match top-level `response.serverTime` |
 | taskId | Long | Current task ID |
-| resultVersion | Long | Current result version |
+| resultVersion | Long | Current result version; current service implementation may leave it `null` |
 | page | Integer | Current page number |
 | pageSize | Integer | Page size, fixed `10` |
 | total | Integer | Total candidate count in this check result |
@@ -475,35 +447,4 @@ Business rule:
 
 - The same user can review the same `matchId` only once.
 
-## 10. Recommended CLI Loop
 
-```bash
-# 1) Register or login
-dating-cli register --username <preferredName>
-# or
-dating-cli login --username <u> --password <p>
-
-# 2) Upload profile images and update photoUrls
-dating-cli upload "./photos/me-1.jpg" "./photos/me-2.jpg"
-
-# 3) Update profile
-dating-cli profile update --gender male --city Shanghai --character-text "<text>" --hobby-text "<text>" --ability-text "<text>"
-
-# 4) Create task
-dating-cli task create --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-height-filter '{"gte":165}' --preferred-city-filter '{"eq":"Shanghai"}' --intention "long-term relationship"
-
-# 5) Check match results (repeat when NO_RESULT_RETRY_NOW)
-dating-cli check <taskId> --page 1
-
-# 6) Reveal contact after match
-dating-cli reveal-contact <matchId>
-
-# 7) Submit review after communication
-dating-cli review <matchId> --rating 5 --comment "Smooth communication"
-```
-
-If criteria need to be adjusted and matching should continue:
-
-```bash
-dating-cli task update <taskId> --task-name "<name>" --preferred-gender-filter '{"eq":"female"}' --preferred-city-filter '{"eq":"Hangzhou"}' --intention "serious relationship"
-```

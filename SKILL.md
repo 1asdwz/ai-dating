@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Ai Dating
@@ -37,6 +37,8 @@ npm install -g dating-cli@latest
 ```
 
 ## Standard Execution Flow (AI Agent)
+
+
 
 1. Check skill and CLI availability.
 
@@ -134,6 +136,8 @@ dating-cli task create \
 `--*-embedding-min-score` means the minimum semantic similarity threshold for embedding matching.  
 Default recommendation is to leave it unset; when omitted in `task create`, backend defaults to `0.1`,  it is recommended to use `0.1`.
 
+> **Write API response note:** `task create` now returns the created task payload, including `taskId` and `taskName`.
+
 7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
 ```bash
 dating-cli task update 12345 \
@@ -148,6 +152,8 @@ dating-cli task update 12345 \
   --intention "serious relationship with marriage plan" \
   --preferred-contact-channel wechat
 ```
+
+
 
 8. Query task status (full parameter example).
 ```bash
