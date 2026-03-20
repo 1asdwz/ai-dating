@@ -4,7 +4,7 @@ description: "This skill enables dating and matchmaking workflows. Use it when a
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.2"
+  version: "1.2.3"
 ---
 
 # Ai Dating
@@ -134,7 +134,7 @@ dating-cli task create \
   --preferred-contact-channel telegram
 ```
 `--*-embedding-min-score` means the minimum semantic similarity threshold for embedding matching.  
-Default recommendation is to leave it unset; when omitted in `task create`, backend defaults to `0.1`,  it is recommended to use `0.1`.
+Default recommendation is to leave it unset; when omitted in `task create`,  it is recommended to use `0.0`.
 
 > **Write API response note:** `task create` now returns the created task payload, including `taskId` and `taskName`.
 
