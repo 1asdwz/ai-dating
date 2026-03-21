@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.6"
+  version: "1.2.7"
 ---
 
 # Ai Dating
@@ -41,105 +41,111 @@ npx skills add 1asdwz/ai-dating
 
 1. Check skill and `curl` availability.
 
-Use `curl` or `curl.exe`. In PowerShell, call `curl.exe` instead of `curl` to avoid the alias to `Invoke-WebRequest`.
+- Avoid non-interactive PowerShell. Prefer `bash`, `sh`, `zsh`, Git Bash, or WSL for all requests because some security products alert on `powershell.exe` or `pwsh.exe` spawned without a normal desktop parent.
+- If the environment defaults to PowerShell, explicitly invoke a non-PowerShell shell before running this workflow.
 
 Then verify:
-```powershell
-curl.exe --version
+```bash
+curl --version
 ```
 
 If the user or environment provides a base URL, use it. Otherwise, in this repository default to:
-```powershell
-$BASE_URL = if ($env:AIDATING_BASE_URL) {
-  $env:AIDATING_BASE_URL.TrimEnd("/")
-} else {
-  "https://api.aidating.top"
-}
+```bash
+BASE_URL="${AIDATING_BASE_URL%/}"
+if [ -z "$BASE_URL" ]; then
+  BASE_URL="https://api.aidating.top"
+fi
 ```
 
 2. Prepare local request context (full examples).
-```powershell
-$BodyPath = Join-Path $PWD ".tmp_dating_body.json"
-$AUTH = $null
-$TASK_ID = $null
-$MATCH_ID = $null
+```bash
+BODY_PATH="$(pwd)/.tmp_dating_body.json"
+AUTH=""
+TASK_ID=""
+MATCH_ID=""
 ```
 
 3. Register or login (full parameter examples).
-```powershell
-@{ username = "amy_2026" } | ConvertTo-Json | Set-Content -Encoding utf8 $BodyPath
-$RegisterResp = curl.exe -sS -X POST "$BASE_URL/register" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{"username":"amy_2026"}
+JSON
+
+REGISTER_RESP=$(curl -sS -X POST "$BASE_URL/register" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 ```
 
-```powershell
-@{
-  username = "amy_2026"
-  password = "123456"
-} | ConvertTo-Json | Set-Content -Encoding utf8 $BodyPath
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{"username":"amy_2026","password":"123456"}
+JSON
 
-$LoginResp = curl.exe -sS -X POST "$BASE_URL/login" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+LOGIN_RESP=$(curl -sS -X POST "$BASE_URL/login" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 
-$AUTH = "$($LoginResp.data.tokenHead)$($LoginResp.data.token)"
+AUTH=$(printf '%s' "$LOGIN_RESP" | jq -r '.data.tokenHead + .data.token')
 ```
 
-> **Note:** Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `).
+> **Note:** Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `). If `jq` is unavailable, use any non-PowerShell JSON parser to extract the same fields.
 
 4. Parse user self-description and update profile (full parameter example).
-```powershell
-$Upload1 = curl.exe -sS -X POST "$BASE_URL/minio/upload" `
-  -H "Authorization: $AUTH" `
-  -F "file=@./photos/amy-1.jpg" | ConvertFrom-Json
+```bash
+UPLOAD1_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
+  -H "Authorization: $AUTH" \
+  -F "file=@./photos/amy-1.jpg")
 
-$Upload2 = curl.exe -sS -X POST "$BASE_URL/minio/upload" `
-  -H "Authorization: $AUTH" `
-  -F "file=@./photos/amy-2.jpg" | ConvertFrom-Json
+UPLOAD2_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
+  -H "Authorization: $AUTH" \
+  -F "file=@./photos/amy-2.jpg")
+
+UPLOAD1_URL=$(printf '%s' "$UPLOAD1_RESP" | jq -r '.data.url')
+UPLOAD2_URL=$(printf '%s' "$UPLOAD2_RESP" | jq -r '.data.url')
 ```
 
-```powershell
-$ProfileBody = @{
-  gender = "male"
-  birthday = "1998-08-08"
-  heightCm = 180
-  weightKg = 72
-  annualIncomeCny = 300000
-  characterText = "sincere, steady, humorous"
-  hobbyText = "badminton, travel, photography"
-  abilityText = "cooking, communication, English"
-  major = "Computer Science"
-  nationality = "China"
-  country = "China"
-  province = "Zhejiang"
-  city = "Hangzhou"
-  addressDetail = "Xihu District"
-  currentLatitude = 30.27415
-  currentLongitude = 120.15515
-  currentLocationText = "Hangzhou West Lake"
-  email = "amy@example.com"
-  phone = "13800000000"
-  telegram = "amy_tg"
-  wechat = "amy_wechat"
-  whatsapp = "amy_wa"
-  signalChat = "amy_signal"
-  line = "amy_line"
-  snapchat = "amy_snap"
-  instagram = "amy_ins"
-  facebook = "amy_fb"
-  otherContacts = @{
-    xiaohongshu = "amy_xhs"
-    discord = "amy#1234"
-  }
-  photoUrls = @($Upload1.data.url, $Upload2.data.url)
+```bash
+cat > "$BODY_PATH" <<JSON
+{
+  "gender": "male",
+  "birthday": "1998-08-08",
+  "heightCm": 180,
+  "weightKg": 72,
+  "annualIncomeCny": 300000,
+  "characterText": "sincere, steady, humorous",
+  "hobbyText": "badminton, travel, photography",
+  "abilityText": "cooking, communication, English",
+  "major": "Computer Science",
+  "nationality": "China",
+  "country": "China",
+  "province": "Zhejiang",
+  "city": "Hangzhou",
+  "addressDetail": "Xihu District",
+  "currentLatitude": 30.27415,
+  "currentLongitude": 120.15515,
+  "currentLocationText": "Hangzhou West Lake",
+  "email": "amy@example.com",
+  "phone": "13800000000",
+  "telegram": "amy_tg",
+  "wechat": "amy_wechat",
+  "whatsapp": "amy_wa",
+  "signalChat": "amy_signal",
+  "line": "amy_line",
+  "snapchat": "amy_snap",
+  "instagram": "amy_ins",
+  "facebook": "amy_fb",
+  "otherContacts": {
+    "xiaohongshu": "amy_xhs",
+    "discord": "amy#1234"
+  },
+  "photoUrls": ["$UPLOAD1_URL", "$UPLOAD2_URL"]
 }
+JSON
 
-$ProfileBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X PUT "$BASE_URL/member-profile" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X PUT "$BASE_URL/member-profile" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 > **Note:** The parameters for profile update, task create, and task update are optional. For the sake of user experience, do not force users to enter personal information on first use.
@@ -147,34 +153,35 @@ curl.exe -sS -X PUT "$BASE_URL/member-profile" `
 5. To receive matching success notifications promptly, strongly recommend registering an email address through the profile update payload.
 
 6. Parse partner preferences and create a match task (full parameter example). Users do not need to fill in all fields. Only provide the information they have available.
-```powershell
-$TaskBody = @{
-  taskName = "Find partner in Hangzhou"
-  criteria = @{
-    preferredGenderFilter = @{ eq = "female" }
-    preferredHeightFilter = @{ gte = 165; lte = 178 }
-    preferredIncomeFilter = @{ gte = 200000 }
-    preferredCityFilter = @{ eq = "Hangzhou" }
-    preferredNationalityFilter = @{ eq = "China" }
-    preferredEducationFilter = @{ contains = "Bachelor" }
-    preferredOccupationFilter = @{ contains = "Product" }
-    preferredEducationStage = "Bachelor or above"
-    preferredOccupationKeyword = "Product Manager"
-    preferredHobbyText = "reading, travel"
-    preferredCharacterText = "kind, positive"
-    preferredAbilityText = "strong communication"
-    intention = "long-term relationship"
-    preferredContactChannel = "telegram"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "taskName": "Find partner in Hangzhou",
+  "criteria": {
+    "preferredGenderFilter": { "eq": "female" },
+    "preferredHeightFilter": { "gte": 165, "lte": 178 },
+    "preferredIncomeFilter": { "gte": 200000 },
+    "preferredCityFilter": { "eq": "Hangzhou" },
+    "preferredNationalityFilter": { "eq": "China" },
+    "preferredEducationFilter": { "contains": "Bachelor" },
+    "preferredOccupationFilter": { "contains": "Product" },
+    "preferredEducationStage": "Bachelor or above",
+    "preferredOccupationKeyword": "Product Manager",
+    "preferredHobbyText": "reading, travel",
+    "preferredCharacterText": "kind, positive",
+    "preferredAbilityText": "strong communication",
+    "intention": "long-term relationship",
+    "preferredContactChannel": "telegram"
   }
 }
+JSON
 
-$TaskBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-$TaskResp = curl.exe -sS -X POST "$BASE_URL/match-tasks" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+TASK_RESP=$(curl -sS -X POST "$BASE_URL/match-tasks" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 
-$TASK_ID = $TaskResp.data.taskId
+TASK_ID=$(printf '%s' "$TASK_RESP" | jq -r '.data.taskId')
 ```
 `*EmbeddingMinScore` means the minimum semantic similarity threshold for embedding matching.  
 Default recommendation is to leave it unset. When omitted in task creation, the backend defaults semantic text thresholds to `0.0` where applicable.
@@ -182,41 +189,42 @@ Default recommendation is to leave it unset. When omitted in task creation, the 
 > **Write API response note:** `task create` returns the created task payload, including `taskId` and `taskName`.
 
 7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
-```powershell
-$UpdateBody = @{
-  taskName = "Update criteria - Hangzhou/Shanghai"
-  criteria = @{
-    preferredGenderFilter = @{ eq = "female" }
-    preferredHeightFilter = @{ gte = 163; lte = 180 }
-    preferredIncomeFilter = @{ gte = 250000 }
-    preferredCityFilter = @{ in = @("Hangzhou", "Shanghai") }
-    preferredHobbyText = "reading, travel, sports"
-    preferredCharacterText = "independent, optimistic"
-    preferredAbilityText = "communication and collaboration"
-    intention = "serious relationship with marriage plan"
-    preferredContactChannel = "wechat"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "taskName": "Update criteria - Hangzhou/Shanghai",
+  "criteria": {
+    "preferredGenderFilter": { "eq": "female" },
+    "preferredHeightFilter": { "gte": 163, "lte": 180 },
+    "preferredIncomeFilter": { "gte": 250000 },
+    "preferredCityFilter": { "in": ["Hangzhou", "Shanghai"] },
+    "preferredHobbyText": "reading, travel, sports",
+    "preferredCharacterText": "independent, optimistic",
+    "preferredAbilityText": "communication and collaboration",
+    "intention": "serious relationship with marriage plan",
+    "preferredContactChannel": "wechat"
   }
 }
+JSON
 
-$UpdateBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/update" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/update" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 > **Note:** Keep `taskId` from the create response. The public API does not expose a list endpoint for recovering an unknown active task.
 
 8. Query task status (full parameter example).
-```powershell
-curl.exe -sS "$BASE_URL/match-tasks/$TASK_ID" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+curl -sS "$BASE_URL/match-tasks/$TASK_ID" \
+  -H "Authorization: $AUTH"
 ```
 
 9. Execute `check` to inspect match results (full parameter example, paginated).
-```powershell
-$CheckResp = curl.exe -sS "$BASE_URL/match-tasks/$TASK_ID/check?page=1" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+CHECK_RESP=$(curl -sS "$BASE_URL/match-tasks/$TASK_ID/check?page=1" \
+  -H "Authorization: $AUTH")
 ```
 Each page returns 10 candidates. Use the `page` query parameter to fetch subsequent pages when needed.
 `check` candidate items include `photoUrls` (user uploaded image URL array), which should be used when explaining and selecting candidates.
@@ -226,32 +234,35 @@ If the result is `MATCH_FOUND`, continue to contact reveal.
 > **Note:** Candidates' photos should be shown to users first. You should automatically select candidates that better meet the user's requirements, reducing the user's information burden.
 
 10. Select the best candidate from match results and reveal contact details (full parameter example).
-```powershell
-$RevealResp = curl.exe -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reveal-contact" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+MATCH_ID="<selected matchId from check response>"
+
+REVEAL_RESP=$(curl -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reveal-contact" \
+  -H "Authorization: $AUTH")
 ```
 
 11. Submit review when needed (full parameter example).
-```powershell
-$ReviewBody = @{
-  rating = 5
-  comment = "Good communication and aligned values"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "rating": 5,
+  "comment": "Good communication and aligned values"
 }
+JSON
 
-$ReviewBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reviews" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reviews" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 12. Optional commands (full parameter examples).
-```powershell
-curl.exe -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/stop" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+curl -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/stop" \
+  -H "Authorization: $AUTH"
 
-curl.exe -sS -X POST "$BASE_URL/logout" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+curl -sS -X POST "$BASE_URL/logout" \
+  -H "Authorization: $AUTH"
 ```
 
 ## Reference

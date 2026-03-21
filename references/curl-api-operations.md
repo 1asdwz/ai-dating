@@ -15,32 +15,40 @@ Use this reference after `ai-dating` triggers and direct `curl` calls are requir
 
 ## 1. Session Setup
 
-Prefer `curl.exe` in PowerShell.
+Prefer a non-PowerShell shell such as `bash`, `sh`, `zsh`, Git Bash, or WSL.
 
-```powershell
-$BASE_URL = if ($env:AIDATING_BASE_URL) {
-  $env:AIDATING_BASE_URL.TrimEnd("/")
-} else {
-  "https://api.aidating.top"
-}
+- Avoid non-interactive PowerShell because some security products alert on `powershell.exe` or `pwsh.exe` started by service or agent processes instead of a normal desktop parent.
+- If the environment starts in PowerShell, switch to a non-PowerShell shell before sending HTTP requests.
+
+Use:
+
+```bash
+BASE_URL="${AIDATING_BASE_URL%/}"
+if [ -z "$BASE_URL" ]; then
+  BASE_URL="https://api.aidating.top"
+fi
 ```
 
 Prefer temp JSON files for request bodies:
 
-```powershell
-$BodyPath = Join-Path $PWD ".tmp_dating_body.json"
-@{ username = "amy_2026" } | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
+```bash
+BODY_PATH="$(pwd)/.tmp_dating_body.json"
+cat > "$BODY_PATH" <<'JSON'
+{"username":"amy_2026"}
+JSON
 ```
 
 After login or register:
 
-```powershell
-$AUTH = "$($Resp.data.tokenHead)$($Resp.data.token)"
-$TASK_ID = $null
-$MATCH_ID = $null
+```bash
+AUTH="$(printf '%s' "$RESP" | jq -r '.data.tokenHead + .data.token')"
+TASK_ID=""
+MATCH_ID=""
 ```
 
 `tokenHead` already includes the trailing space in the current backend configuration, so do not insert an extra one manually.
+
+If `jq` is unavailable, use any non-PowerShell JSON parser to extract the same fields.
 
 ## 2. Endpoint Matrix
 
@@ -65,11 +73,14 @@ $MATCH_ID = $null
 
 Body is optional. Use it only when the user wants a preferred username.
 
-```powershell
-@{ username = "amy_2026" } | ConvertTo-Json | Set-Content -Encoding utf8 $BodyPath
-$Resp = curl.exe -sS -X POST "$BASE_URL/register" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{"username":"amy_2026"}
+JSON
+
+RESP=$(curl -sS -X POST "$BASE_URL/register" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 ```
 
 Response `data` contains:
@@ -82,22 +93,21 @@ Response `data` contains:
 
 ### 3.2 Login
 
-```powershell
-@{
-  username = "amy_2026"
-  password = "123456"
-} | ConvertTo-Json | Set-Content -Encoding utf8 $BodyPath
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{"username":"amy_2026","password":"123456"}
+JSON
 
-$Resp = curl.exe -sS -X POST "$BASE_URL/login" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+RESP=$(curl -sS -X POST "$BASE_URL/login" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 ```
 
 ### 3.3 Logout
 
-```powershell
-curl.exe -sS -X POST "$BASE_URL/logout" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+curl -sS -X POST "$BASE_URL/logout" \
+  -H "Authorization: $AUTH"
 ```
 
 ## 4. Profile Update And Photo Upload
@@ -155,47 +165,49 @@ Supported aliases from the DTO:
 
 Example:
 
-```powershell
-$ProfileBody = @{
-  gender = "male"
-  birthday = "1998-08-08"
-  heightCm = 180
-  annualIncomeCny = 300000
-  city = "Hangzhou"
-  hobbyText = "badminton, travel, photography"
-  characterText = "sincere, steady, humorous"
-  abilityText = "cooking, communication, English"
-  currentLocationText = "Hangzhou West Lake"
-  email = "amy@example.com"
-  telegram = "amy_tg"
-  wechat = "amy_wechat"
-  otherContacts = @{
-    xiaohongshu = "amy_xhs"
-    discord = "amy#1234"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "gender": "male",
+  "birthday": "1998-08-08",
+  "heightCm": 180,
+  "annualIncomeCny": 300000,
+  "city": "Hangzhou",
+  "hobbyText": "badminton, travel, photography",
+  "characterText": "sincere, steady, humorous",
+  "abilityText": "cooking, communication, English",
+  "currentLocationText": "Hangzhou West Lake",
+  "email": "amy@example.com",
+  "telegram": "amy_tg",
+  "wechat": "amy_wechat",
+  "otherContacts": {
+    "xiaohongshu": "amy_xhs",
+    "discord": "amy#1234"
   }
 }
+JSON
 
-$ProfileBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X PUT "$BASE_URL/member-profile" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X PUT "$BASE_URL/member-profile" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 ### 4.2 Upload Photos
 
 `POST /minio/upload` accepts one file per request. Upload each file separately, collect `data.url`, then send all desired URLs in a later `PUT /member-profile`.
 
-```powershell
-$Upload1 = curl.exe -sS -X POST "$BASE_URL/minio/upload" `
-  -H "Authorization: $AUTH" `
-  -F "file=@C:\photos\me-1.jpg" | ConvertFrom-Json
+```bash
+UPLOAD1_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
+  -H "Authorization: $AUTH" \
+  -F "file=@./photos/me-1.jpg")
 
-$Upload2 = curl.exe -sS -X POST "$BASE_URL/minio/upload" `
-  -H "Authorization: $AUTH" `
-  -F "file=@C:\photos\me-2.jpg" | ConvertFrom-Json
+UPLOAD2_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
+  -H "Authorization: $AUTH" \
+  -F "file=@./photos/me-2.jpg")
 
-$PhotoUrls = @($Upload1.data.url, $Upload2.data.url)
+PHOTO_URL_1=$(printf '%s' "$UPLOAD1_RESP" | jq -r '.data.url')
+PHOTO_URL_2=$(printf '%s' "$UPLOAD2_RESP" | jq -r '.data.url')
 ```
 
 ## 5. Match Task Create And Update
@@ -237,30 +249,31 @@ Use nested objects for filter expressions when possible. The backend setter acce
 
 Example:
 
-```powershell
-$TaskBody = @{
-  taskName = "Find long-term partner in Hangzhou"
-  criteria = @{
-    preferredGenderFilter = @{ eq = "female" }
-    preferredHeightFilter = @{ gte = 165; lte = 178 }
-    preferredIncomeFilter = @{ gte = 200000 }
-    preferredCityFilter = @{ in = @("Hangzhou", "Shanghai") }
-    preferredEducationStage = "Bachelor or above"
-    preferredOccupationKeyword = "Product"
-    preferredHobbyText = "reading, travel"
-    preferredCharacterText = "kind, positive"
-    preferredAbilityText = "strong communication"
-    intention = "long-term relationship"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "taskName": "Find long-term partner in Hangzhou",
+  "criteria": {
+    "preferredGenderFilter": { "eq": "female" },
+    "preferredHeightFilter": { "gte": 165, "lte": 178 },
+    "preferredIncomeFilter": { "gte": 200000 },
+    "preferredCityFilter": { "in": ["Hangzhou", "Shanghai"] },
+    "preferredEducationStage": "Bachelor or above",
+    "preferredOccupationKeyword": "Product",
+    "preferredHobbyText": "reading, travel",
+    "preferredCharacterText": "kind, positive",
+    "preferredAbilityText": "strong communication",
+    "intention": "long-term relationship"
   }
 }
+JSON
 
-$TaskBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-$TaskResp = curl.exe -sS -X POST "$BASE_URL/match-tasks" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+TASK_RESP=$(curl -sS -X POST "$BASE_URL/match-tasks" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH")
 
-$TASK_ID = $TaskResp.data.taskId
+TASK_ID=$(printf '%s' "$TASK_RESP" | jq -r '.data.taskId')
 ```
 
 Notes:
@@ -273,23 +286,24 @@ Notes:
 
 Use the same body shape as create:
 
-```powershell
-$UpdateBody = @{
-  taskName = "Update criteria - Hangzhou or Shanghai"
-  criteria = @{
-    preferredGenderFilter = @{ eq = "female" }
-    preferredHeightFilter = @{ gte = 163; lte = 180 }
-    preferredCityFilter = @{ in = @("Hangzhou", "Shanghai") }
-    preferredCharacterText = "independent, optimistic"
-    intention = "serious long-term relationship"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "taskName": "Update criteria - Hangzhou or Shanghai",
+  "criteria": {
+    "preferredGenderFilter": { "eq": "female" },
+    "preferredHeightFilter": { "gte": 163, "lte": 180 },
+    "preferredCityFilter": { "in": ["Hangzhou", "Shanghai"] },
+    "preferredCharacterText": "independent, optimistic",
+    "intention": "serious long-term relationship"
   }
 }
+JSON
 
-$UpdateBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/update" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X POST "$BASE_URL/match-tasks/$TASK_ID/update" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 There is no public list endpoint to recover forgotten task IDs, so keep `taskId` when you create a task.
@@ -298,16 +312,16 @@ There is no public list endpoint to recover forgotten task IDs, so keep `taskId`
 
 ### 6.1 Get Task
 
-```powershell
-curl.exe -sS "$BASE_URL/match-tasks/$TASK_ID" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+curl -sS "$BASE_URL/match-tasks/$TASK_ID" \
+  -H "Authorization: $AUTH"
 ```
 
 ### 6.2 Check Candidates
 
-```powershell
-$CheckResp = curl.exe -sS "$BASE_URL/match-tasks/$TASK_ID/check?page=1" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+CHECK_RESP=$(curl -sS "$BASE_URL/match-tasks/$TASK_ID/check?page=1" \
+  -H "Authorization: $AUTH")
 ```
 
 Read:
@@ -348,14 +362,13 @@ Selection guidance:
 - Explain tradeoffs instead of presenting only one opaque winner.
 - Do not claim contact information is available until `reveal-contact` succeeds.
 
-
 ## 7. Contact Reveal And Review
 
 ### 7.1 Reveal Contact
 
-```powershell
-$RevealResp = curl.exe -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reveal-contact" `
-  -H "Authorization: $AUTH" | ConvertFrom-Json
+```bash
+REVEAL_RESP=$(curl -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reveal-contact" \
+  -H "Authorization: $AUTH")
 ```
 
 Response `data` may contain:
@@ -375,17 +388,18 @@ Response `data` may contain:
 
 ### 7.2 Submit Review
 
-```powershell
-$ReviewBody = @{
-  rating = 5
-  comment = "Communication was smooth and values were aligned"
+```bash
+cat > "$BODY_PATH" <<'JSON'
+{
+  "rating": 5,
+  "comment": "Communication was smooth and values were aligned"
 }
+JSON
 
-$ReviewBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reviews" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
+curl -sS -X POST "$BASE_URL/match-results/$MATCH_ID/reviews" \
+  -H "Authorization: $AUTH" \
+  -H "Content-Type: application/json" \
+  --data-binary @"$BODY_PATH"
 ```
 
 Rules from the DTO and service:

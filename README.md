@@ -1,7 +1,7 @@
 # ai-dating
 
 `ai-dating` is a Codex skill for dating and matchmaking workflows.
-It uses direct HTTP API calls with `curl.exe` instead of `dating-cli`.
+It uses direct HTTP API calls with `curl` instead of `dating-cli`.
 
 ## What Changed
 
@@ -20,7 +20,7 @@ The skill no longer depends on local CLI installation or local CLI config files.
 ## Files
 
 - `SKILL.md`: agent-facing workflow and guardrails
-- `references/curl-api-operations.md`: verified request shapes and PowerShell `curl.exe` examples
+- `references/curl-api-operations.md`: verified request shapes and `curl` examples
 - `LICENSE`: skill license
 
 ## Intended Use
@@ -39,14 +39,13 @@ Use this skill when a user wants to:
 
 ## Quick Start
 
-In PowerShell, prefer `curl.exe`:
+Prefer a non-PowerShell shell such as `bash`, `sh`, `zsh`, Git Bash, or WSL:
 
-```powershell
-$BASE_URL = if ($env:AIDATING_BASE_URL) {
-  $env:AIDATING_BASE_URL.TrimEnd("/")
-} else {
-  "https://api.aidating.top"
-}
+```bash
+BASE_URL="${AIDATING_BASE_URL%/}"
+if [ -z "$BASE_URL" ]; then
+  BASE_URL="https://api.aidating.top"
+fi
 ```
 
 Typical workflow:
@@ -62,7 +61,7 @@ Typical workflow:
 
 ## Important Notes
 
-- Use `curl.exe`, not `curl`, in PowerShell.
+- Avoid non-interactive PowerShell for this skill because some security tools alert on `powershell.exe` or `pwsh.exe` spawned by service or agent processes.
 - The current public polling endpoint is `GET /match-tasks/{taskId}/check`.
 - Several write endpoints return success-only envelopes with `data = null`.
 - There is no public list-tasks endpoint, so created `taskId` values must be preserved.
@@ -74,14 +73,14 @@ This repository includes helper scripts under `.codex/skills/skill-creator/scrip
 
 Validate with Python 3:
 
-```powershell
-py -3 .codex\skills\skill-creator\scripts\quick_validate.py .codex\skills\ai-dating
+```bash
+python .codex/skills/skill-creator/scripts/quick_validate.py .codex/skills/ai-dating
 ```
 
 Package with Python 3:
 
-```powershell
-py -3 .codex\skills\skill-creator\scripts\package_skill.py .codex\skills\ai-dating dist
+```bash
+python .codex/skills/skill-creator/scripts/package_skill.py .codex/skills/ai-dating dist
 ```
 
 The packaged artifact is written to:
