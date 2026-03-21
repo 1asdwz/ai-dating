@@ -56,7 +56,6 @@ $MATCH_ID = $null
 | POST | `/match-tasks/{taskId}/update` | Yes | Same body shape as create; success-only response |
 | POST | `/match-tasks/{taskId}/stop` | Yes | Success-only response |
 | GET | `/match-tasks/{taskId}/check?page=1` | Yes | Page size is fixed at `10`; max page is `20` |
-| POST | `/match-graphql/search` | Yes | Optional advanced query path |
 | POST | `/match-results/{matchId}/reveal-contact` | Yes | Returns contact info payload |
 | POST | `/match-results/{matchId}/reviews` | Yes | Requires `rating`; success-only response |
 
@@ -268,7 +267,7 @@ Notes:
 
 - `criteria` cannot be omitted.
 - `preferredEducationStage` and `preferredOccupationKeyword` are convenience fields; the service converts them into `contains` filters internally.
-- If `preferredHobbyText`, `preferredCharacterText`, `preferredAbilityText`, or `intention` are present and no min score is supplied, create-task logic defaults that min score to `0.1`.
+- If `preferredHobbyText`, `preferredCharacterText`, `preferredAbilityText`, or `intention` are present and no min score is supplied, create-task logic defaults that min score to `0.0`.
 
 ### 5.2 Update Task
 
@@ -349,34 +348,6 @@ Selection guidance:
 - Explain tradeoffs instead of presenting only one opaque winner.
 - Do not claim contact information is available until `reveal-contact` succeeds.
 
-### 6.3 Optional GraphQL Search
-
-Use `POST /match-graphql/search` only when the user needs a constrained candidate query or richer candidate fields than `/check` returns.
-
-Requirements enforced by service code:
-
-- `query` must contain `matchCandidates`
-- `variables.taskId` is required
-- `variables.limit` defaults to `20`
-- `variables.criteria` is optional and accepts the same structure as task criteria
-
-Example:
-
-```powershell
-$GraphqlBody = @{
-  query = "query MatchCandidates(`$taskId:Long!, `$limit:Int){ matchCandidates(taskId:`$taskId, limit:`$limit){ matchId memberId city rankScore compatibilityScore } }"
-  variables = @{
-    taskId = $TASK_ID
-    limit = 20
-  }
-}
-
-$GraphqlBody | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $BodyPath
-curl.exe -sS -X POST "$BASE_URL/match-graphql/search" `
-  -H "Authorization: $AUTH" `
-  -H "Content-Type: application/json" `
-  --data-binary "@$BodyPath" | ConvertFrom-Json
-```
 
 ## 7. Contact Reveal And Review
 

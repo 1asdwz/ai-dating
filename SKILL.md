@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.4"
+  version: "1.2.5"
 ---
 
 # Ai Dating
@@ -26,7 +26,7 @@ Use direct HTTP requests.
 - Use `POST /register` when the user needs a new account.
 - Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `).
 
-2. Update profile.
+2. Create or Update customer's profile to date.
 - Use `PUT /member-profile` for structured profile fields and contact data.
 - Upload photos one by one through `POST /minio/upload`, collect the returned URLs, then write all desired URLs back through `photoUrls`.
 - Encourage the user to provide `email` if they want reminder emails.
@@ -51,15 +51,11 @@ Use direct HTTP requests.
 - `GET /match-tasks/{taskId}`
 - `POST /match-tasks/{taskId}/stop`
 - `POST /logout`
-- `POST /match-graphql/search`
 
 ## Avoid Common Mistakes
 
-- Use `GET /match-tasks/{taskId}/check`; there is no public `/watch` endpoint in the current controller set.
-- Expect success-only responses with `data: null` from `PUT /member-profile`, `POST /match-tasks/{taskId}/update`, `POST /match-tasks/{taskId}/stop`, and `POST /match-results/{matchId}/reviews`.
-- Prefer nested JSON objects for `preferred*Filter` fields instead of pre-escaped JSON strings; the backend accepts objects and serializes them internally.
-- Treat `preferredContactChannel` as advisory only. It is accepted by the DTO but is not applied by current matching logic.
-- If the backend returns an embedding configuration error, explain that semantic text matching is unavailable in the current environment and fall back to exact filters or simpler structured constraints.
+- Use `GET /match-tasks/{taskId}/check`; 
+
 
 ## Read This Reference
 
