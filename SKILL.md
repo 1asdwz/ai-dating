@@ -1,194 +1,66 @@
 ---
 name: ai-dating
-description: "This skill enables dating and matchmaking workflows. Use it when a user asks to make friends, find a partner, run matchmaking, or provide dating preferences/profile updates. The skill should execute `dating-cli` commands to complete profile setup, task creation/update, match checking, contact reveal, and review."
+description: "Direct dating and matchmaking workflow via curl against the dating HTTP API. Use when users ask to make friends, find a partner, date, run matchmaking, xiangqin, update a dating profile, upload profile photos, create or update a match task, check candidates, reveal contact details, or submit reviews."
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.3"
+  version: "1.2.4"
 ---
 
 # Ai Dating
 
-This skill supports dating and matchmaking workflows through `dating-cli`.  
-It helps users create a profile, define partner preferences, check matching results, reveal contact details, and submit post-chat reviews.
+Use direct HTTP requests.
 
-## Trigger Conditions
+## Follow These Rules
 
-Trigger this skill when any of the following intents appear:
+- In PowerShell, call `curl.exe` instead of `curl` to avoid the alias to `Invoke-WebRequest`.
+- Prefer small JSON body files or PowerShell objects converted with `ConvertTo-Json -Depth 8` instead of long escaped inline JSON.
+- Keep user free-text in the user's original language for profile text, preference text, task names, and review comments unless the user asks for translation.
+- Preserve `token`, `tokenHead`, `taskId`, and `matchId` from earlier responses when the workflow spans multiple calls.
+- If the user or environment provides a base URL, use it. Otherwise, in this repository default to `https://api.aidating.top`.
 
-1. The user explicitly asks to make friends, find a partner, date, or run a match.
-2. The user provides personal information and asks the system to find a matching person.
-3. The user describes partner preferences (for example gender, height, income, city, personality, hobbies) and asks for matching.
+## Run The Standard Flow
 
-## Language Alignment Rule
+1. Authenticate.
+- Use `POST /login` when username and password are known.
+- Use `POST /register` when the user needs a new account.
+- Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `).
 
-When constructing `dating-cli` command arguments, use the same language as the user for all free-text fields and labels (for example `--task-name`, `--character-text`, `--hobby-text`, `--ability-text`, `--intention`, `--preferred-*` text fields, and `--comment`).
+2. Update profile.
+- Use `PUT /member-profile` for structured profile fields and contact data.
+- Upload photos one by one through `POST /minio/upload`, collect the returned URLs, then write all desired URLs back through `photoUrls`.
+- Encourage the user to provide `email` if they want reminder emails.
 
-- Do not translate user-provided content unless the user explicitly requests translation.
-- Keep language style consistent across one command (for example, if the user speaks Chinese, prefer Chinese text values in string parameters).
+3. Create or update a matching task.
+- Use `POST /match-tasks` to create a task.
+- Use `POST /match-tasks/{taskId}/update` only when `taskId` is already known from the current session or the user gives it explicitly.
+- Do not assume you can discover an existing active task later; this API does not expose a public list-tasks endpoint.
+- Always send a `criteria` object. Use `{}` only when the user truly gave almost no filtering information.
 
-## Update Commands
+4. Check results.
+- Poll `GET /match-tasks/{taskId}/check?page=1`.
+- Treat `NO_RESULT_RETRY_NOW` as "no candidates yet".
+- Treat `MATCH_FOUND` as "candidate list available now".
+- Show candidate photos and structured traits first, then recommend the best fit instead of dumping raw JSON.
 
-When users ask to update this skill or the CLI, run:
+5. Reveal contact and review.
+- Use `POST /match-results/{matchId}/reveal-contact` only after the user wants that candidate.
+- Use `POST /match-results/{matchId}/reviews` after communication when the user wants to rate the match.
 
-```bash
-npx skills add 1asdwz/ai-dating
-npm install -g dating-cli@latest
-```
+6. Use optional endpoints when needed.
+- `GET /match-tasks/{taskId}`
+- `POST /match-tasks/{taskId}/stop`
+- `POST /logout`
+- `POST /match-graphql/search`
 
-## Standard Execution Flow (AI Agent)
+## Avoid Common Mistakes
 
+- Use `GET /match-tasks/{taskId}/check`; there is no public `/watch` endpoint in the current controller set.
+- Expect success-only responses with `data: null` from `PUT /member-profile`, `POST /match-tasks/{taskId}/update`, `POST /match-tasks/{taskId}/stop`, and `POST /match-results/{matchId}/reviews`.
+- Prefer nested JSON objects for `preferred*Filter` fields instead of pre-escaped JSON strings; the backend accepts objects and serializes them internally.
+- Treat `preferredContactChannel` as advisory only. It is accepted by the DTO but is not applied by current matching logic.
+- If the backend returns an embedding configuration error, explain that semantic text matching is unavailable in the current environment and fall back to exact filters or simpler structured constraints.
 
+## Read This Reference
 
-1. Check skill and CLI availability.
-
-Update skill and CLI when needed:
-
-
-
-Then verify CLI:
-```bash
-command -v dating-cli
-dating-cli --help
-```
-
-If missing, install:
-```bash
-npm install -g dating-cli@latest
-# or
-bun install -g dating-cli
-```
-
-2. Check local CLI status (full examples).
-```bash
-dating-cli config show
-dating-cli config path
-```
-
-3. Register or login (full parameter examples).
-```bash
-dating-cli register --username "amy_2026"
-dating-cli login --username "amy_2026" --password "123456"
-```
-
-> **Note:** The parameters for `profile update`, `task create`, and `task update` are optional..
-
-4. Parse user self-description and update profile (full parameter example).
-```bash
-dating-cli upload "./photos/amy-1.jpg" "./photos/amy-2.jpg"
-```
-
-```bash
-dating-cli profile update \
-  --gender male \
-  --birthday 1998-08-08 \
-  --height-cm 180 \
-  --weight-kg 72 \
-  --annual-income-cny 300000 \
-  --character-text "sincere, steady, humorous" \
-  --hobby-text "badminton, travel, photography" \
-  --ability-text "cooking, communication, English" \
-  --major "Computer Science" \
-  --nationality "China" \
-  --country "China" \
-  --province "Zhejiang" \
-  --city "Hangzhou" \
-  --address-detail "Xihu District" \
-  --current-latitude 30.27415 \
-  --current-longitude 120.15515 \
-  --current-location-text "Hangzhou West Lake" \
-  --email "amy@example.com" \
-  --phone "13800000000" \
-  --telegram "amy_tg" \
-  --wechat "amy_wechat" \
-  --whatsapp "amy_wa" \
-  --signal-chat "amy_signal" \
-  --line "amy_line" \
-  --snapchat "amy_snap" \
-  --instagram "amy_ins" \
-  --facebook "amy_fb" \
-  --other-contact "x=amy_xhs" \
-  --other-contact "discord=amy#1234"
-```
-  > **Note:** The parameters for `profile update`, `task create`, and `task update` are optional. For the sake of user experience, it is recommended not to force users to enter personal information on first use.
-
-5. To receive matching success notifications promptly, strongly recommend registering your email address. via `dating-cli profile update --email ...` .
-
-6. Parse partner preferences and create a match task (full parameter example), Users do not need to fill in all fields - only provide the information they have available.
-```bash
-dating-cli task create \
-  --task-name "Find partner in Hangzhou" \
-  --preferred-gender-filter '{"eq":"female"}' \
-  --preferred-height-filter '{"gte":165,"lte":178}' \
-  --preferred-income-filter '{"gte":200000}' \
-  --preferred-city-filter '{"eq":"Hangzhou"}' \
-  --preferred-nationality-filter '{"eq":"China"}' \
-  --preferred-education-filter '{"contains":"Bachelor"}' \
-  --preferred-occupation-filter '{"contains":"Product"}' \
-  --preferred-education-stage "Bachelor or above" \
-  --preferred-occupation-keyword "Product Manager" \
-  --preferred-hobby-text "reading, travel" \
-  --preferred-character-text "kind, positive" \
-  --preferred-ability-text "strong communication" \
-  --intention "long-term relationship" \
-  --preferred-contact-channel telegram
-```
-`--*-embedding-min-score` means the minimum semantic similarity threshold for embedding matching.  
-Default recommendation is to leave it unset; when omitted in `task create`,  it is recommended to use `0.0`.
-
-> **Write API response note:** `task create` now returns the created task payload, including `taskId` and `taskName`.
-
-7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
-```bash
-dating-cli task update 12345 \
-  --task-name "Update criteria - Hangzhou/Shanghai" \
-  --preferred-gender-filter '{"eq":"female"}' \
-  --preferred-height-filter '{"gte":163,"lte":180}' \
-  --preferred-income-filter '{"gte":250000}' \
-  --preferred-city-filter '{"in":["Hangzhou","Shanghai"]}' \
-  --preferred-hobby-text "reading, travel, sports" \
-  --preferred-character-text "independent, optimistic" \
-  --preferred-ability-text "communication and collaboration" \
-  --intention "serious relationship with marriage plan" \
-  --preferred-contact-channel wechat
-```
-
-
-
-8. Query task status (full parameter example).
-```bash
-dating-cli task get 12345
-```
-
-9. Execute `check` to inspect match results (full parameter example, paginated).
-```bash
-dating-cli check 12345 --page 1
-```
-Each page returns 10 candidates. Use `--page` to fetch subsequent pages when needed.
-`check` candidate items include `photoUrls` (user uploaded image URL array), which should be used when explaining and selecting candidates.
-If the result is `NO_RESULT_RETRY_NOW`, call `check` again as needed.  
-If the result is `MATCH_FOUND`, continue to contact reveal.
-
-  > **Note:** Candidates' Photos should be shown to users first. You should automatically select candidates that better meet the user's requirements, reducing the burden of user information.
-
-10. Select the best candidate from match results and reveal contact details (full parameter example).
-```bash
-dating-cli reveal-contact 67890
-```
-
-11. Submit review when needed (full parameter example).
-```bash
-dating-cli review 67890 --rating 5 --comment "Good communication and aligned values"
-```
-
-12. Optional commands (full parameter examples).
-```bash
-dating-cli task stop 12345
-dating-cli logout
-```
-
-## Reference
-
-For detailed field-level behavior, validation rules, and response structures:
-
-- `references/dating-cli-operations.md`
+Load `references/curl-api-operations.md` for verified request shapes, endpoint notes, and PowerShell-oriented `curl.exe` examples.
