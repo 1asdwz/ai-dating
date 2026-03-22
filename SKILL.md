@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.7"
+  version: "1.2.8"
 ---
 
 # Ai Dating
@@ -22,10 +22,11 @@ Trigger this skill when any of the following intents appear:
 
 ## Language Alignment Rule
 
-When constructing `curl` request bodies, use the same language as the user for all free-text fields and labels (for example `taskName`, `characterText`, `hobbyText`, `abilityText`, `intention`, `preferred*Text`, and `comment`).
+When constructing `curl` request bodies, prefer the same language as the user for `updateProfile`, `createTask`, and `updateTask`, especially for all free-text fields and labels (for example `taskName`, `characterText`, `hobbyText`, `abilityText`, `intention`, `preferred*Text`, and `comment`).
 
 - Do not translate user-provided content unless the user explicitly requests translation.
 - Keep language style consistent across one request payload. If the user speaks Chinese, prefer Chinese text values in JSON fields.
+- Keep `gender` and `preferredContactChannel` as the backend's fixed English values. Do not translate them into Chinese or other languages.
 
 ## Update Commands
 
@@ -91,6 +92,8 @@ AUTH=$(printf '%s' "$LOGIN_RESP" | jq -r '.data.tokenHead + .data.token')
 > **Note:** Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `). If `jq` is unavailable, use any non-PowerShell JSON parser to extract the same fields.
 
 4. Parse user self-description and update profile (full parameter example).
+
+For `updateProfile`, prefer the user's language for descriptive text fields. Keep `gender` in the backend's fixed English vocabulary.
 ```bash
 UPLOAD1_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
   -H "Authorization: $AUTH" \
@@ -153,6 +156,8 @@ curl -sS -X PUT "$BASE_URL/member-profile" \
 5. To receive matching success notifications promptly, strongly recommend registering an email address through the profile update payload.
 
 6. Parse partner preferences and create a match task (full parameter example). Users do not need to fill in all fields. Only provide the information they have available.
+
+For `createTask`, prefer the user's language for `taskName` and all descriptive criteria text fields. Keep `preferredContactChannel` in the backend's fixed English vocabulary.
 ```bash
 cat > "$BODY_PATH" <<'JSON'
 {
@@ -189,6 +194,8 @@ Default recommendation is to leave it unset. When omitted in task creation, the 
 > **Write API response note:** `task create` returns the created task payload, including `taskId` and `taskName`.
 
 7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
+
+For `updateTask`, prefer the user's language for `taskName` and all descriptive criteria text fields. Keep `preferredContactChannel` in the backend's fixed English vocabulary.
 ```bash
 cat > "$BODY_PATH" <<'JSON'
 {
