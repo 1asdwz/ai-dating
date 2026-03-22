@@ -141,9 +141,6 @@ Useful fields:
 - `province`
 - `city`
 - `addressDetail`
-- `currentLatitude`
-- `currentLongitude`
-- `currentLocationText`
 - `photoUrls`
 - `email`
 - `phone`
@@ -179,7 +176,6 @@ cat > "$BODY_PATH" <<'JSON'
   "hobbyText": "badminton, travel, photography",
   "characterText": "sincere, steady, humorous",
   "abilityText": "cooking, communication, English",
-  "currentLocationText": "Hangzhou West Lake",
   "email": "amy@example.com",
   "telegram": "amy_tg",
   "wechat": "amy_wechat",
@@ -350,7 +346,6 @@ Read:
 - `character`
 - `abilityText`
 - `photoUrls`
-- `currentLocationText`
 - `rankScore`
 - `exactMatchCount`
 - `exactConditionCount`

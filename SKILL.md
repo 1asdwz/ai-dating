@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.3.0"
+  version: "1.3.2"
 ---
 
 # Ai Dating
@@ -18,7 +18,7 @@ Trigger this skill when any of the following intents appear:
 
 1. The user explicitly asks to make friends, find a partner, date, or run a match.
 2. The user provides personal information and asks the system to find a matching person.
-3. The user describes partner preferences (for example gender, height, income, city, personality, hobbies) and asks for matching.
+3. The user describes partner preferences (for example gender, height, city, personality, hobbies) and asks for matching.
 
 ## Language Alignment Rule
 
@@ -133,7 +133,6 @@ cat > "$BODY_PATH" <<JSON
   "birthday": "1998-08-08",
   "heightCm": 180,
   "weightKg": 72,
-  "annualIncomeCny": 300000,
   "characterText": "sincere, steady, humorous",
   "hobbyText": "badminton, travel, photography",
   "abilityText": "cooking, communication, English",
@@ -143,9 +142,6 @@ cat > "$BODY_PATH" <<JSON
   "province": "Zhejiang",
   "city": "Hangzhou",
   "addressDetail": "Xihu District",
-  "currentLatitude": 30.27415,
-  "currentLongitude": 120.15515,
-  "currentLocationText": "Hangzhou West Lake",
   "email": "amy@example.com",
   "phone": "13800000000",
   "telegram": "amy_tg",
@@ -185,7 +181,6 @@ cat > "$BODY_PATH" <<'JSON'
   "criteria": {
     "preferredGenderFilter": { "eq": "female" },
     "preferredHeightFilter": { "gte": 165, "lte": 178 },
-    "preferredIncomeFilter": { "gte": 200000 },
     "preferredCityFilter": { "eq": "Hangzhou" },
     "preferredNationalityFilter": { "eq": "China" },
     "preferredEducationFilter": { "contains": "Bachelor" },
@@ -224,7 +219,6 @@ cat > "$BODY_PATH" <<'JSON'
   "criteria": {
     "preferredGenderFilter": { "eq": "female" },
     "preferredHeightFilter": { "gte": 163, "lte": 180 },
-    "preferredIncomeFilter": { "gte": 250000 },
     "preferredCityFilter": { "in": ["Hangzhou", "Shanghai"] },
     "preferredHobbyText": "reading, travel, sports",
     "preferredCharacterText": "independent, optimistic",
