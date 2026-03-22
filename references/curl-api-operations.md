@@ -2,6 +2,8 @@
 
 Use this reference after `ai-dating` triggers and direct `curl` calls are required.
 
+This workflow uses an external dating backend. Before running requests, review the base URL, privacy implications, data retention expectations, and whether the user has explicitly agreed to send profile data, photos, and contact details to that service.
+
 ## Table Of Contents
 
 1. Session setup
@@ -15,7 +17,11 @@ Use this reference after `ai-dating` triggers and direct `curl` calls are requir
 
 ## 1. Session Setup
 
- `bash`, `sh`, `zsh`, Git Bash, or WSL.
+Prefer `bash`, `sh`, `zsh`, Git Bash, or WSL.
+
+- Require outbound network access, `curl`, and preferably `jq`.
+- Default to `https://api.aidating.top` only when no approved `AIDATING_BASE_URL` is supplied.
+- Before the first write request, make sure the user understands which external backend will receive their data.
 
 
 Use:

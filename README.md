@@ -17,6 +17,24 @@ This version is built around the dating backend API:
 
 The skill no longer depends on local CLI installation or local CLI config files.
 
+## External Backend And Privacy Review
+
+This skill sends user data to an external dating backend.
+
+- Default base URL: `https://api.aidating.top` unless `AIDATING_BASE_URL` overrides it
+- Expected tools: `curl`, and preferably `jq`
+- Expected capability: outbound network access
+
+Review the endpoint owner, privacy policy, retention policy, and internal approval requirements before installing or using the skill.
+Do not use it where policy forbids sending photos, profile traits, or contact details to third-party services.
+
+Use data minimization:
+
+- only send fields needed for the current action
+- do not upload photos without explicit user consent
+- do not reveal contact details without explicit user selection and consent
+- avoid sending highly sensitive identifiers or unrelated secrets
+
 ## Files
 
 - `SKILL.md`: agent-facing workflow and guardrails
@@ -65,6 +83,7 @@ Typical workflow:
 - Several write endpoints return success-only envelopes with `data = null`.
 - There is no public list-tasks endpoint, so created `taskId` values must be preserved.
 - `preferredContactChannel` is accepted by the DTO but is not currently used by matching logic.
+- The skill should tell the user which external base URL will receive their data before the first write request when that is not already clear.
 
 ## Validation And Packaging
 

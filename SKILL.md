@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.9"
+  version: "1.3.0"
 ---
 
 # Ai Dating
@@ -38,6 +38,24 @@ npx skills add 1asdwz/ai-dating
 
 > **Note:** This skill uses direct `curl` requests. Do not invoke `dating-cli`.
 
+## External Service And Requirements
+
+- This skill sends user data to an external dating backend over the network.
+- The default backend in this repository is `https://api.aidating.top` unless `AIDATING_BASE_URL` is set to another value.
+- Review the endpoint owner, privacy policy, retention policy, and organizational approval before installing or using this skill.
+- Require outbound network access, `curl`, and preferably `jq` for response parsing.
+- Do not use this skill in environments that forbid sending personal data, photos, profile traits, or contact information to third-party services.
+
+## Privacy And Consent Rules
+
+- Tell the user which external base URL will receive their data before the first write request if that is not already obvious from context.
+- Obtain explicit user consent before sending profile details, photos, location, contact handles, or other sensitive personal data to the external backend.
+- Prefer data minimization. Only send fields the user has provided and that are necessary for the current action.
+- Do not require contact fields on first use. Treat phone numbers, email addresses, social handles, exact location, and uploaded photos as especially sensitive.
+- Do not upload photos or reveal contact details automatically. Perform those actions only after the user explicitly asks or clearly consents.
+- Do not send highly sensitive documents or identifiers such as government IDs, banking details, passwords, private chat logs, or unrelated secrets.
+- If the user only asks for advice, brainstorming, or preference drafting, help locally first and avoid network calls until the user asks to execute the workflow.
+
 ## Standard Execution Flow (AI Agent)
 
 1. Check skill and `curl` availability.
@@ -65,6 +83,8 @@ MATCH_ID=""
 ```
 
 3. Register or login (full parameter examples).
+
+Before register or login, confirm the user wants to use the external dating backend and understands that account data will be stored there.
 ```bash
 cat > "$BODY_PATH" <<'JSON'
 {"username":"amy_2026"}
@@ -92,6 +112,7 @@ AUTH=$(printf '%s' "$LOGIN_RESP" | jq -r '.data.tokenHead + .data.token')
 4. Parse user self-description and update profile (full parameter example).
 
 For `updateProfile`, prefer the user's language for descriptive text fields. Keep `gender` in the backend's fixed English vocabulary.
+Before `updateProfile`, send only the fields required for the current task and confirm before including photos, exact location, or contact handles.
 ```bash
 UPLOAD1_RESP=$(curl -sS -X POST "$BASE_URL/minio/upload" \
   -H "Authorization: $AUTH" \
@@ -156,6 +177,7 @@ curl -sS -X PUT "$BASE_URL/member-profile" \
 6. Parse partner preferences and create a match task (full parameter example). Users do not need to fill in all fields. Only provide the information they have available.
 
 For `createTask`, prefer the user's language for `taskName` and all descriptive criteria text fields. Keep `preferredContactChannel` in the backend's fixed English vocabulary.
+Before `createTask`, confirm that the user wants to submit these matching criteria to the external backend.
 ```bash
 cat > "$BODY_PATH" <<'JSON'
 {
@@ -194,6 +216,7 @@ Default recommendation is to leave it unset. When omitted in task creation, the 
 7. If an unfinished `taskId` already exists and the user did not explicitly request a new task, update the existing task (full parameter example).
 
 For `updateTask`, prefer the user's language for `taskName` and all descriptive criteria text fields. Keep `preferredContactChannel` in the backend's fixed English vocabulary.
+Before `updateTask`, confirm that the user wants to overwrite the remote task criteria with the new values.
 ```bash
 cat > "$BODY_PATH" <<'JSON'
 {
@@ -239,6 +262,8 @@ If the result is `MATCH_FOUND`, continue to contact reveal.
 > **Note:** Candidates' photos should be shown to users first. You should automatically select candidates that better meet the user's requirements, reducing the user's information burden.
 
 10. Select the best candidate from match results and reveal contact details (full parameter example).
+
+Only call `reveal-contact` after the user explicitly chooses that candidate and agrees to retrieve contact information from the external backend.
 ```bash
 MATCH_ID="<selected matchId from check response>"
 
