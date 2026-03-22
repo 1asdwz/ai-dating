@@ -15,10 +15,8 @@ Use this reference after `ai-dating` triggers and direct `curl` calls are requir
 
 ## 1. Session Setup
 
-Prefer a non-PowerShell shell such as `bash`, `sh`, `zsh`, Git Bash, or WSL.
+ `bash`, `sh`, `zsh`, Git Bash, or WSL.
 
-- Avoid non-interactive PowerShell because some security products alert on `powershell.exe` or `pwsh.exe` started by service or agent processes instead of a normal desktop parent.
-- If the environment starts in PowerShell, switch to a non-PowerShell shell before sending HTTP requests.
 
 Use:
 
@@ -48,7 +46,6 @@ MATCH_ID=""
 
 `tokenHead` already includes the trailing space in the current backend configuration, so do not insert an extra one manually.
 
-If `jq` is unavailable, use any non-PowerShell JSON parser to extract the same fields.
 
 ## 2. Endpoint Matrix
 

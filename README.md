@@ -39,7 +39,7 @@ Use this skill when a user wants to:
 
 ## Quick Start
 
-Prefer a non-PowerShell shell such as `bash`, `sh`, `zsh`, Git Bash, or WSL:
+such as `bash`, `sh`, `zsh`, Git Bash, or WSL:
 
 ```bash
 BASE_URL="${AIDATING_BASE_URL%/}"
@@ -61,7 +61,6 @@ Typical workflow:
 
 ## Important Notes
 
-- Avoid non-interactive PowerShell for this skill because some security tools alert on `powershell.exe` or `pwsh.exe` spawned by service or agent processes.
 - The current public polling endpoint is `GET /match-tasks/{taskId}/check`.
 - Several write endpoints return success-only envelopes with `data = null`.
 - There is no public list-tasks endpoint, so created `taskId` values must be preserved.

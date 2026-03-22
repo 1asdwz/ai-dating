@@ -4,7 +4,7 @@ description: "Direct dating and matchmaking workflow via curl against the dating
 license: MIT
 metadata:
   author: 1asdwz
-  version: "1.2.8"
+  version: "1.2.9"
 ---
 
 # Ai Dating
@@ -42,8 +42,6 @@ npx skills add 1asdwz/ai-dating
 
 1. Check skill and `curl` availability.
 
-- Avoid non-interactive PowerShell. Prefer `bash`, `sh`, `zsh`, Git Bash, or WSL for all requests because some security products alert on `powershell.exe` or `pwsh.exe` spawned without a normal desktop parent.
-- If the environment defaults to PowerShell, explicitly invoke a non-PowerShell shell before running this workflow.
 
 Then verify:
 ```bash
@@ -89,7 +87,7 @@ LOGIN_RESP=$(curl -sS -X POST "$BASE_URL/login" \
 AUTH=$(printf '%s' "$LOGIN_RESP" | jq -r '.data.tokenHead + .data.token')
 ```
 
-> **Note:** Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `). If `jq` is unavailable, use any non-PowerShell JSON parser to extract the same fields.
+> **Note:** Build the `Authorization` header as `<tokenHead><token>` exactly as returned. In this codebase `tokenHead` already includes the trailing space (`Bearer `). 
 
 4. Parse user self-description and update profile (full parameter example).
 
